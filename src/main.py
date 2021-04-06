@@ -2,6 +2,7 @@ import sys
 import os
 
 from src.lexer import run_lex
+from src.yaccer import run_yacc
 
 
 def main():
@@ -23,7 +24,7 @@ def main():
         print("error: {} does not exist".format(template))
         sys.exit(1)
 
-    run_lex(open(data, "r").read())
+    run_yacc(open(data, "r").read())
 
 
 if __name__ == '__main__':

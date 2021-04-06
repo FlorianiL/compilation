@@ -4,13 +4,18 @@ tokens = (
     'DUMBO_OPEN',
     'DUMBO_CLOSE',
     'AFFECT',
+    'PRINT',
+    'FOR',
+    'IN',
+    'DO',
+    'ENDFOR',
     'VAR',
     'STRING',
-    'END_LINE',
+    'POINT_COMMA',
     'PAR_OPEN',
     'PAR_CLOSE',
-    'SEPARATOR'
-
+    'SEP',
+    'POINT'
 )
 
 t_ignore = ' |\t'
@@ -18,13 +23,18 @@ t_ignore = ' |\t'
 t_DUMBO_OPEN = r'{{'
 t_DUMBO_CLOSE = r'}}'
 t_AFFECT = r':='
+t_PRINT = r'print'
+t_FOR = r'for'
+t_IN = r'in'
+t_DO = r'do'
+t_ENDFOR = r'endfor'
 t_VAR = r'[a-zA-Z_]\w*'
 t_STRING = r'\'[\w\s](\w|\s)*\''
-t_END_LINE = r';'
+t_POINT_COMMA = r';'
 t_PAR_OPEN = r'\('
 t_PAR_CLOSE = r'\)'
-t_SEPARATOR = r','
-
+t_SEP = r','
+t_POINT = r'.'
 
 def t_newline(t):
     r'\n+'
