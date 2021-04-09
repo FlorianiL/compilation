@@ -1,4 +1,5 @@
 from lark import Lark
+from lark import Transformer
 
 calc_grammar = """
     start : program
@@ -8,7 +9,7 @@ calc_grammar = """
             | dumbo_block
             | dumbo_block program
     
-    txt : /[ a-zA-Z0-9_;&<>"-.:,\n]+/x
+    txt : /[a-zA-Z0-9 \/\\ \n\s _;&<>"-.:,]+/x
     
     dumbo_block : ("{{" "}}")
                 | ("{{" expression_list "}}")
@@ -43,11 +44,48 @@ calc_grammar = """
     STRING : /'[^']+'/
     
     %ignore /[ \t\f\r\n]+/x
-
 """
+
 calc_parser = Lark(calc_grammar, parser='lalr')
 calc = calc_parser.parse
 
 
+class MyTransformer(Transformer):
+    def program(self, items):
+        pass
+
+    def dumbo_block(self, items):
+        pass
+
+    def expression_list(self, items):
+        pass
+
+    def expression(self, items):
+        pass
+
+    def expression_print(self, items):
+        pass
+
+    def expression_for_lis(self, items):
+        pass
+
+    def expression_for_var(self, items):
+        pass
+
+    def expression_var(self, items):
+        pass
+
+    def string_expression(self, items):
+        pass
+
+    def string_list(self, items):
+        pass
+
+    def string_list_interior(self, items):
+        pass
+
+
 def test_lark(data, template):
-    print(calc(data))
+    tree_data = calc(data)
+    tree_template = calc(template)
+    MyTransformer().transform(tree_data)
