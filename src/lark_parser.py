@@ -1,4 +1,5 @@
 import copy
+from lib2to3.pytree import Node
 
 import lark.tree
 from lark import Lark
@@ -61,88 +62,99 @@ class TreeToDumbo(Transformer):
 
     def __init__(self, visit_tokens=True):
         super().__init__(visit_tokens)
+        self.result = ""
         self.vars = {}
-        self.temp = []
+        self.list_strings = []
+        self.list_expr = []
+
+    def start(self, items):
+        print(self.result)
 
     def program(self, items):
-        print(f"program --> {items}")
-        return items
+        pass
 
     def dumbo_block(self, items):
-        print(f"dumbo_block --> {items}")
         return items
 
     def expression_list(self, items):
-        print(f"expression_list --> {items}")
-        return items
+        res = self.list_expr
+        self.list_expr = []
+        if len(res) > 0:
+            return res
 
     def expression(self, items):
-        print(f"expression --> {items}")
-        return items
+        (val,) = items
+        self.list_expr.append(val)
 
-    def expression_var(self, items): # OK
-        name, value = items
-        self.vars[name] = value
-        print(f"expression_var --> {name} {self.vars[name]}")
-
-    def expression_print(self, items):
-        print(f"expression_print --> {items}")
-        return items
+    def expression_print(self, items): # OK
+        (val,) = items
+        if val is not None:
+            self.result += val
 
     def expression_for_lis(self, items):
-        print(f"expression_for_lis --> {items}")
-        return items
+        variable_set, list_string, expression_list = items
+
 
     def expression_for_var(self, items):
-        print(f"expression_for_var --> {items}")
-        return items
+        variable_set, variable_get, expression_list = items
+        for variable_set in variable_get:
+            pass
+
+    def expression_var(self, items): # OK Assign value to variable
+        name, value = items
+        self.vars[name] = value
 
     def string_expression(self, items): # OK
         (res,) = items
-        print(f"string_expression --> {res}")
         return res
 
     def string_concat(self, items): # NOT TEST !!!
-        print(f"string_concat --> {items}")
         (str1,), (str2,) = items
         return str1[1:-1] + str2[1:-1]
 
     def string_list(self, items): # OK
-        res = self.temp
-        self.temp = []
-        print(f"string_list ---> {res}")
+        res = self.list_strings
+        self.list_strings = []
         return res
 
     def string_list_interior(self, items): # OK
-        self.temp.append(items[0])
-        print(f"string_list_interior ---> {self.temp} ")
+        val = items[0]
+        if val is not None:
+            self.list_strings.append(items[0])
 
     def variable_get(self, item):
         (name,) = item
-        print(f"variable_get ---> {name}")
-        return name
+        if name in self.vars.keys():
+            return self.vars[name]
 
     def variable_set(self, item):
         (name,) = item
-        print(f"variable_set ---> {name}")
+        # print(f"variable_set ---> {name}")
         return name
 
     def string(self, item):     # OK
         (s,) = item
         res = s[1:-1]
-        print(f"string --> {res}")
+        # print(f"string --> {res}")
         return res
 
     def txt(self, item):        # OK
         (res,) = item
-        print(f"txt --> {res}")
-        return res
+        # print(f"txt --> {res}")
+        self.result += res
+
+    def get_vars(self, tree):
+        print("******************************** DATA ****************************************")
+        self.transform(tree)
+        return self.vars
+
+    def construct(self, tree, vars_):
+        print("******************************** TEMPLATE ****************************************")
+        self.vars = vars_
+        self.transform(tree)
 
 
 def test_lark(data, template):
     tree_data = calc(data)
     tree_template = calc(template)
-    print("************************ DATA **********************************")
-    TreeToDumbo().transform(tree_data)
-    # print("************************ TEMPLATE **********************************")
-    # TreeToDumbo().transform(tree_template)
+    TreeToDumbo().construct(tree_template, TreeToDumbo().get_vars(tree_data))
