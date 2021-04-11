@@ -23,8 +23,7 @@ def main():
         print("error: {} does not exist".format(template))
         sys.exit(1)
 
-    test_lark(open(data, "r").read(), open(template, "r").read())
-
+    test_lark(open(data, "r"), open(template, "r"))
 
 if __name__ == '__main__':
     main()

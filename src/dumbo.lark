@@ -1,0 +1,49 @@
+start : program
+
+program : txt
+        | txt program
+        | dumbo_block
+        | dumbo_block program
+
+txt : /[a-zA-Z0-9 \/\\ \n\s _;&<>"-.:,]+/x
+
+dumbo_block : "{{" expression_list "}}"
+            | "{{" "}}"
+
+expression_list : expression ";" expression_list
+                | expression ";"
+
+expression : expression_var
+           | expression_print
+           | expression_for_lis
+           | expression_for_var
+
+
+expression_var : (variable_set ":=" string_expression)
+               | (variable_set ":=" string_list)
+
+expression_print : "print" string_expression
+
+expression_for_lis : "for" variable_set "in" string_list "do" expression_list "endfor"
+
+expression_for_var :  "for" variable_set "in" variable_get "do" expression_list "endfor"
+
+string_expression : string
+                  | variable_get
+                  | string_concat
+
+string_concat : string_expression "." string_expression
+
+string_list : "(" string_list_interior ")"
+
+string_list_interior : string
+                     | (string "," string_list_interior)
+
+variable_set : CNAME
+variable_get : CNAME
+string : /'[^']+'/
+
+%import common.CNAME
+%import common.NEWLINE -> NL
+%import common.WS
+%ignore WS
