@@ -25,9 +25,9 @@ expression_var : (variable_set ":=" string_expression)
 
 expression_print : "print" string_expression
 
-expression_for_lis : "for" variable_set "in" string_list "do" expression_list "endfor"
+expression_for_lis : "for" variable_set_for "in" string_list "do" expression_list "endfor"
 
-expression_for_var :  "for" variable_set "in" variable_get_str "do" expression_list "endfor"
+expression_for_var :  "for" variable_set_for "in" variable_get_str "do" expression_list "endfor"
 
 expression_if : "if" test "do" expression_list "endif"
 
@@ -48,19 +48,37 @@ test : test "or" and_test
 and_test : and_test "and" comparison
          | comparison
 
-comparison : arith_expression COMP_OP arith_expression
-           | boolean
+comparison : lower
+           | upper
+           | equal
+           | not_equal
 
-arith_expression : arith_expression ADD_OP term
+lower : arith_expression "<" arith_expression
+upper : arith_expression ">" arith_expression
+equal : arith_expression "=" arith_expression
+not_equal : arith_expression "!=" arith_expression
+
+arith_expression : add_expr
+                 | sub_expr
                  | term
 
-term : term MULTI_OP factor
+add_expr : arith_expression "+" term
+
+sub_expr : arith_expression "-" term
+
+term : multi_expr
+     | div_expr
      | factor
 
-factor : SIGNED_INT
+multi_expr : term "*" factor
+
+div_expr : term "/" factor
+
+factor : SIGNED_INT -> integer
        | variable_get_int
 
 variable_set : CNAME
+variable_set_for : CNAME
 variable_get_str : VARIABLE_STR
 variable_get_int : VARIABLE_INT
 string : /'[^']+'/
@@ -70,9 +88,6 @@ boolean : "true"
 
 VARIABLE_STR: CNAME
 VARIABLE_INT: CNAME
-COMP_OP : "=" | "!=" | "<" | ">" | "<=" | ">="
-MULTI_OP : "*" | "/"
-ADD_OP : "+" | "-"
 
 %import common.SIGNED_INT
 %import common.CNAME
