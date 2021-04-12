@@ -17,19 +17,22 @@ expression : expression_var
            | expression_print
            | expression_for_lis
            | expression_for_var
-
+           | expression_if
 
 expression_var : (variable_set ":=" string_expression)
                | (variable_set ":=" string_list)
+               | (variable_set ":=" arith_expression)
 
 expression_print : "print" string_expression
 
 expression_for_lis : "for" variable_set "in" string_list "do" expression_list "endfor"
 
-expression_for_var :  "for" variable_set "in" variable_get "do" expression_list "endfor"
+expression_for_var :  "for" variable_set "in" variable_get_str "do" expression_list "endfor"
+
+expression_if : "if" test "do" expression_list "endif"
 
 string_expression : string
-                  | variable_get
+                  | variable_get_str
                   | string_concat
 
 string_concat : string_expression "." string_expression
@@ -39,10 +42,39 @@ string_list : "(" string_list_interior ")"
 string_list_interior : string
                      | (string "," string_list_interior)
 
+test : test "or" and_test
+     | and_test
+
+and_test : and_test "and" comparison
+         | comparison
+
+comparison : arith_expression COMP_OP arith_expression
+           | boolean
+
+arith_expression : arith_expression ADD_OP term
+                 | term
+
+term : term MULTI_OP factor
+     | factor
+
+factor : SIGNED_INT
+       | variable_get_int
+
 variable_set : CNAME
-variable_get : CNAME
+variable_get_str : VARIABLE_STR
+variable_get_int : VARIABLE_INT
 string : /'[^']+'/
 
+boolean : "true"
+        | "false"
+
+VARIABLE_STR: CNAME
+VARIABLE_INT: CNAME
+COMP_OP : "=" | "!=" | "<" | ">" | "<=" | ">="
+MULTI_OP : "*" | "/"
+ADD_OP : "+" | "-"
+
+%import common.SIGNED_INT
 %import common.CNAME
 %import common.NEWLINE -> NL
 %import common.WS
