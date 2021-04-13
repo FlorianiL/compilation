@@ -1,7 +1,7 @@
 import sys
 import os
 
-from src.lark_parser import test_lark
+from lark_parser import test_lark
 
 
 def main():

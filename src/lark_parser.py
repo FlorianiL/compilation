@@ -1,6 +1,5 @@
 from lark import Lark
-from lark.visitors import Interpreter, Transformer
-import operator
+from lark.visitors import Interpreter
 
 
 class TreeToDumbo(Interpreter):
@@ -9,30 +8,30 @@ class TreeToDumbo(Interpreter):
         self.result = ""
         self.variables = {}
 
-    def start(self, tree):  # OK
+    def start(self, tree):
         self.visit_children(tree)
 
-    def program(self, tree):  # OK
+    def program(self, tree):
         self.visit_children(tree)
 
-    def txt(self, tree):  # OK
+    def txt(self, tree):
         res = tree.children[0].value
         self.result += res
 
-    def dumbo_block(self, tree):  # OK
+    def dumbo_block(self, tree):
         self.visit_children(tree)
 
-    def expression_list(self, tree):  # OK
+    def expression_list(self, tree):
         self.visit_children(tree)
 
-    def expression(self, tree):  # OK
+    def expression(self, tree):
         self.visit_children(tree)
 
-    def expression_var(self, tree):  # OK
+    def expression_var(self, tree):
         name, value = self.visit_children(tree)
         self.variables[name] = value
 
-    def expression_print(self, tree):  # OK
+    def expression_print(self, tree):
         to_print = self.visit_children(tree)
         res = to_print[0]
         if type(res) != str:
@@ -40,150 +39,141 @@ class TreeToDumbo(Interpreter):
 
         self.result += res
 
-    def expression_for_lis(self, tree):  # OK
+    def expression_for_lis(self, tree):
         variable_set, string_list, expressions_list = tree.children
         self.expression_for(variable_set, string_list, expressions_list)
 
-    def expression_for_var(self, tree):  # OK
+    def expression_for_var(self, tree):
         variable_set_for, variable_get, expressions_list = tree.children
         self.expression_for(variable_set_for, variable_get, expressions_list)
 
-    def expression_for(self, variable_set_for, list_or_get, expressions_list):
-        list = self.visit(list_or_get)
-        name = self.visit_children(variable_set_for)[0]
-
-        for value in list:
-            self.variables[name] = value
-            self.visit_children(expressions_list)
-
-    def expression_if(self, tree):  # TODO A TESTER
+    def expression_if(self, tree):
         test, expression_list = tree.children
-        bool = self.visit_children(test)
+        bool = self.visit_children(test)[0]
         if bool:
             self.visit_children(expression_list)
 
-    def string_expression(self, tree):  # OK
+    def string_expression(self, tree):
         token = self.visit_children(tree)[0]
         return token
 
-    def string_concat(self, tree):  # OK
+    def string_concat(self, tree):
         str1, str2 = self.visit_children(tree)
-        return str1 + str2
+        return str(str1) + str(str2)
 
-    def string_list(self, tree):  # OK
+    def string_list(self, tree):
         return self.visit_children(tree)[0]
 
-    def string_list_interior(self, tree):  # OK
+    def string_list_interior(self, tree):
         if len(tree.children) == 1:
             # end of the list
             return self.visit_children(tree)
         elif len(tree.children) == 2:
             return [self.visit(tree.children[0])] + self.visit(tree.children[1])
 
-    def test(self, tree):  # TODO A TESTER
+    def test(self, tree):
         if len(tree.children) == 1:
-            self.visit_children(tree)
+            return self.visit_children(tree)[0]
         elif len(tree.children) == 2:
             test_, and_test = tree.children
             return self.visit_children(test_)[0] or self.visit_children(and_test)[0]
 
-    def and_test(self, tree):  # TODO A TESTER
+    def and_test(self, tree):
         if len(tree.children) == 1:
-            self.visit_children(tree)
+            return self.visit_children(tree)[0]
         elif len(tree.children) == 2:
             and_test, comparison = tree.children
             return self.visit_children(and_test)[0] and self.visit_children(comparison)[0]
 
-    def comparison(self, tree):  # TODO A TESTER
-        return self.visit_children(tree)
+    def comparison(self, tree):
+        res = self.visit_children(tree)[0]
+        return res
 
-    def lower(self, tree):  # TODO A TESTER
+    def lower(self, tree):
         expr1, expr2 = tree.children
-        return self.visit_children(expr1) < self.visit_children(expr2)
+        return self.calc(self.visit_children(expr1)[0], self.visit_children(expr2)[0], "<")
 
-    def upper(self, tree):  # TODO A TESTER
+    def upper(self, tree):
         expr1, expr2 = tree.children
-        return self.visit_children(expr1) > self.visit_children(expr2)
+        return self.calc(self.visit_children(expr1)[0], self.visit_children(expr2)[0], ">")
 
-    def equal(self, tree):  # TODO A TESTER
+    def equal(self, tree):
         expr1, expr2 = tree.children
-        return self.visit_children(expr1) == self.visit_children(expr2)
+        return self.calc(self.visit_children(expr1)[0], self.visit_children(expr2)[0], "==")
 
-    def not_equal(self, tree):  # TODO A TESTER
+    def not_equal(self, tree):
         expr1, expr2 = tree.children
-        return self.visit_children(expr1) != self.visit_children(expr2)
+        return self.calc(self.visit_children(expr1)[0], self.visit_children(expr2)[0], "!=")
 
-    def arith_expression(self, tree):  # TODO A TESTER
-        return self.visit_children(tree)
+    def arith_expression(self, tree):
+        value = self.visit_children(tree)[0]
+        return value
 
-    def add_expr(self, tree):  # TODO A TESTER
+    def add_expr(self, tree):
         arith_expression_, term_= tree.children
-        x = self.visit_children(arith_expression_)
-        y = self.visit_children(term_)
-        while type(x) == list:
-            x = x[0]
+        return self.calc(self.visit_children(arith_expression_)[0], self.visit_children(term_)[0], "+")
 
-        while type(y) == list:
-            y = y[0]
-
-        return x + y
-
-    def sub_expr(self, tree):  # TODO A TESTER
+    def sub_expr(self, tree):
         arith_expression_, term_ = tree.children
-        return self.visit_children(arith_expression_)[0] - self.visit_children(term_)[0]
+        return self.calc(self.visit_children(arith_expression_)[0], self.visit_children(term_)[0], "-")
 
-    def term(self, tree):  # TODO A TESTER
-        return self.visit_children(tree)
+    def term(self, tree):
+        return self.visit_children(tree)[0]
 
-    def multi_expr(self, tree):  # TODO A TESTER
+    def multi_expr(self, tree):
         term_, factor_ = tree.children
-        return self.visit_children(term_)[0] * self.visit_children(factor_)[0]
+        return self.calc(self.visit_children(term_)[0], self.visit_children(factor_)[0], "*")
 
-    def div_expr(self, tree):  # TODO A TESTER
+    def div_expr(self, tree):
         term_, factor_ = tree.children
-        return self.visit_children(term_)[0] / self.visit_children(factor_)[0]
+        return self.calc(self.visit_children(term_)[0], self.visit_children(factor_)[0], "/")
 
-    def factor(self, tree):  # TODO A TESTER
-        return self.visit_children(tree)
+    def factor(self, tree):
+        return self.visit_children(tree)[0]
 
-    def variable_set(self, tree):  # OK
+    def variable_set(self, tree):
         name = self.visit_children(tree)[0].value
         return name
 
-    def variable_set_for(self, tree):  # TODO
+    def variable_set_for(self, tree):
         name = self.visit_children(tree)[0].value
         name = name + "for"
+        if name in self.variables.keys():
+            raise ValueError("Please use a different variable name")
         return name
 
-    def variable_get_str(self, tree):  # TODO A TESTER
+    def variable_get_str(self, tree):
         name = self.visit_children(tree)[0].value
         try:
-            return self.variables[name]
+            res = self.variables[name]
+            return res
         except KeyError:
             raise Exception("Variable not found: %s" % name)
 
-    def variable_get_int(self, tree):  # TODO A TESTER
+    def variable_get_int(self, tree):
         name = self.visit_children(tree)[0].value
         try:
-            return self.variables[name]
+            res = self.variables[name]
+            return res
         except KeyError:
             raise Exception("Variable not found: %s" % name)
 
-    def string(self, tree):  # OK
+    def string(self, tree):
         str = tree.children[0].value
         res = str[1:-1]
         return res
 
-    def boolean(self, tree):  # TODO A TESTER
+    def boolean(self, tree):
         bools = {"true": True,
                  "false": False}
-        bool = tree.children[0].value
-        return bools[bool]
+        res = bools[tree.children[0].value]
+        return res
 
-    def integer(self, tree): # TODO A TESTER
-        return int(tree.children[0].value)
+    def integer(self, tree):
+        res = int(tree.children[0].value)
+        return res
 
-    # FONCTIONS UTILITAIRES
+    # Utility functions
     def get_vars(self, tree):
         self.visit(tree)
         return self.variables
@@ -193,9 +183,30 @@ class TreeToDumbo(Interpreter):
         self.visit(tree)
         print(self.result)
 
+    def expression_for(self, variable_set_for, list_or_get, expressions_list):
+        list = self.visit(list_or_get)
+        name = self.visit_children(variable_set_for)[0]
+
+        for value in list:
+            self.variables[name] = value
+            self.visit_children(expressions_list)
+
+    def calc(self, x, y, op):
+        res = self.OPERATORS[op](x, y)
+        return res
+
+    OPERATORS = {"+": lambda x, y: x + y,
+                 "-": lambda x, y: x - y,
+                 "/": lambda x, y: x / y,
+                 "*": lambda x, y: x * y,
+                 "<": lambda x, y: x < y,
+                 ">": lambda x, y: x > y,
+                 "=": lambda x, y: x == y,
+                 "!=": lambda x, y: x != y}
+
 
 def test_lark(data, template):
-    grammar = open("../src/dumbo.lark", "r").read()
+    grammar = open("src/dumbo.lark", "r").read()
     tree_data = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(data.read())
     tree_template = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(template.read())
     TreeToDumbo().construct(tree_template, TreeToDumbo().get_vars(tree_data))
