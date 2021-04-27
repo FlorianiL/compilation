@@ -1,0 +1,51 @@
+import unittest
+
+from lark.lark import Lark
+import src.dumbo_interpreter as dumbo
+
+
+class TestClass(unittest.TestCase):
+    def test_get_int(self):
+        data = "{{i := 0;}}"
+        template = "{{print i;}}"
+        self.assertEqual("0", dumbo.interpret(data, template))
+
+    def test_get_str(self):
+        data = "{{nom := 'Perla';}}"
+        template = "{{print nom;}}"
+        self.assertEqual("Perla", dumbo.interpret(data, template))
+
+    def test_add_expr(self):
+        data = "{{add := 2 + 3;}}"
+        template = "{{print add;}}"
+        self.assertEqual("5", dumbo.interpret(data, template))
+
+    def test_sub_expr(self):
+        data = "{{sub := 5 - 2;}}"
+        template = "{{print sub;}}"
+        self.assertEqual("3", dumbo.interpret(data, template))
+
+    def test_multi_expr(self):
+        data = "{{multi := 2 * 3;}}"
+        template = "{{print multi;}}"
+        self.assertEqual("6", dumbo.interpret(data, template))
+
+    def test_div_expr(self):
+        data = "{{div := 6 / 3;}}"
+        template = "{{print div;}}"
+        self.assertEqual("2", dumbo.interpret(data, template))
+
+    def test_expression_for(self):
+        data = "{{numbers := ('0', '1', '2', '3');}}"
+        template = "{{for num in numbers do print num . ' ';" \
+                   "endfor;}}"
+        self.assertEqual("0 1 2 3 ", dumbo.interpret(data, template))
+
+    def test_concat(self):
+        data = "{{hi := 'hello' . ' world';}}"
+        template = "{{print hi;}}"
+        self.assertEqual("hello world", dumbo.interpret(data, template))
+
+
+if __name__ == '__main__':
+    unittest.main()

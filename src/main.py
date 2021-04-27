@@ -1,7 +1,7 @@
 import sys
 import os
 
-from lark_parser import test_lark
+from dumbo_interpreter import interpret
 
 
 def main():
@@ -23,7 +23,7 @@ def main():
         print("error: {} does not exist".format(template))
         sys.exit(1)
 
-    test_lark(open(data, "r"), open(template, "r"))
+    print(interpret(open(data, "r").read(), open(template, "r").read()))
 
 if __name__ == '__main__':
     main()

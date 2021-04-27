@@ -18,7 +18,7 @@ class TreeToDumbo(Interpreter):
         res = tree.children[0].value
         self.result += res
 
-    def dumbo_block(self, tree):
+    def dumbo_bloc(self, tree):
         self.visit_children(tree)
 
     def expression_list(self, tree):
@@ -170,7 +170,7 @@ class TreeToDumbo(Interpreter):
         return res
 
     def integer(self, tree):
-        res = int(tree.children[0].value)
+        res = int(self.visit_children(tree)[0])
         return res
 
     # Utility functions
@@ -181,7 +181,7 @@ class TreeToDumbo(Interpreter):
     def construct(self, tree, variables_):
         self.variables = variables_
         self.visit(tree)
-        print(self.result)
+        return self.result
 
     def expression_for(self, variable_set_for, list_or_get, expressions_list):
         list = self.visit(list_or_get)
@@ -197,7 +197,7 @@ class TreeToDumbo(Interpreter):
 
     OPERATORS = {"+": lambda x, y: x + y,
                  "-": lambda x, y: x - y,
-                 "/": lambda x, y: x / y,
+                 "/": lambda x, y: x // y,
                  "*": lambda x, y: x * y,
                  "<": lambda x, y: x < y,
                  ">": lambda x, y: x > y,
@@ -205,8 +205,8 @@ class TreeToDumbo(Interpreter):
                  "!=": lambda x, y: x != y}
 
 
-def test_lark(data, template):
+def interpret(data, template):
     grammar = open("src/dumbo.lark", "r").read()
-    tree_data = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(data.read())
-    tree_template = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(template.read())
-    TreeToDumbo().construct(tree_template, TreeToDumbo().get_vars(tree_data))
+    tree_data = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(data)
+    tree_template = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(template)
+    return TreeToDumbo().construct(tree_template, TreeToDumbo().get_vars(tree_data))
