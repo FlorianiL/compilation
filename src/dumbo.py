@@ -25,5 +25,6 @@ def main():
 
     print(interpret(open(data, "r").read(), open(template, "r").read()))
 
+
 if __name__ == '__main__':
     main()

@@ -99,7 +99,7 @@ class TreeToDumbo(Interpreter):
 
     def equal(self, tree):
         expr1, expr2 = tree.children
-        return self.calc(self.visit_children(expr1)[0], self.visit_children(expr2)[0], "==")
+        return self.calc(self.visit_children(expr1)[0], self.visit_children(expr2)[0], "=")
 
     def not_equal(self, tree):
         expr1, expr2 = tree.children
