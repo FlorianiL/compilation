@@ -47,6 +47,7 @@ test : test "or" and_test
 
 and_test : and_test "and" comparison
          | comparison
+         | "(" test ")"
 
 comparison : lower
            | upper
@@ -69,6 +70,7 @@ sub_expr : arith_expression "-" term
 term : multi_expr
      | div_expr
      | factor
+     | "(" arith_expression ")"
 
 multi_expr : term "*" factor
 
