@@ -92,6 +92,5 @@ VARIABLE_INT: CNAME
 
 %import common.SIGNED_INT
 %import common.CNAME
-%import common.NEWLINE -> NL
 %import common.WS
 %ignore WS

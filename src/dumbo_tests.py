@@ -41,6 +41,11 @@ class TestClass(unittest.TestCase):
         template = "{{print div;}}"
         self.assertEqual("2", dumbo.interpret(data, template))
 
+    def test_math_expr(self):
+        data = "{{sub := 5 - 2 * 3;}}"
+        template = "{{print sub;}}"
+        self.assertEqual("-1", dumbo.interpret(data, template))
+
     def test_if_not_equal(self):
         data = "{{}}"
         template = "{{if 1 != 2 do print 'bravo'; endif;}}"
