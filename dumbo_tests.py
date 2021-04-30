@@ -1,7 +1,6 @@
 import unittest
 
-from lark.lark import Lark
-import src.dumbo_interpreter as dumbo
+import dumbo_interpreter as dumbo
 
 
 class TestClass(unittest.TestCase):
