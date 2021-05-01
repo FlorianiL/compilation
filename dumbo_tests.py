@@ -80,6 +80,18 @@ class TestClass(unittest.TestCase):
         template = "{{if 1 < 2 or 1 = 2 do print 'bravo'; endif;}}"
         self.assertEqual("bravo", dumbo.interpret(data, template))
 
+    def test_if_true(self):
+        data = "{{}}"
+        template = "{{if true do print 'bravo'; endif;}}"
+        self.assertEqual("bravo", dumbo.interpret(data, template))
+
+    def test_if_false(self):
+        data = "{{a := 'bravo';}}"
+        template = "{{if false do a := 'ko'; endif;" \
+                   "print a;}}"
+        self.assertEqual('bravo', dumbo.interpret(data, template))
+
+
     def test_concat(self):
         data = "{{hi := 'hello' . ' world';}}"
         template = "{{print hi;}}"

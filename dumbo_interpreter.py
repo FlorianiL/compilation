@@ -164,10 +164,13 @@ class TreeToDumbo(Interpreter):
         return res
 
     def boolean(self, tree):
-        bools = {"true": True,
-                 "false": False}
-        res = bools[tree.children[0].value]
-        return res
+        return self.visit_children(tree)[0]
+
+    def true(self, tree):
+        return True
+
+    def false(self, tree):
+        return False
 
     def integer(self, tree):
         res = int(self.visit_children(tree)[0])

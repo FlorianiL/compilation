@@ -53,6 +53,7 @@ comparison : lower
            | upper
            | equal
            | not_equal
+           | boolean
 
 lower : arith_expression "<" arith_expression
 upper : arith_expression ">" arith_expression
@@ -86,8 +87,11 @@ variable_get_str : VARIABLE_STR
 variable_get_int : VARIABLE_INT
 string : /'[^']+'/
 
-boolean : "true"
-        | "false"
+boolean : true
+        | false
+
+true : "true"
+false : "false"
 
 VARIABLE_STR: CNAME
 VARIABLE_INT: CNAME
