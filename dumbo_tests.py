@@ -85,5 +85,13 @@ class TestClass(unittest.TestCase):
         template = "{{print hi;}}"
         self.assertEqual("hello world", dumbo.interpret(data, template))
 
+    def test_double_for(self):
+        data = "{{numbers := ('0', '1', '2');}}"
+        template = "{{for num in numbers do print num . ' ';" \
+                   "endfor;}}" \
+                   "{{for num in numbers do print num . ' ';"\
+                   "endfor;}}"
+        self.assertEqual("0 1 2 0 1 2 ", dumbo.interpret(data, template))
+
 if __name__ == '__main__':
     unittest.main()

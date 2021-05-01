@@ -7,6 +7,7 @@ class TreeToDumbo(Interpreter):
     def __init__(self):
         self.result = ""
         self.variables = {}
+        self.counter = 0
 
     def start(self, tree):
         self.visit_children(tree)
@@ -137,9 +138,8 @@ class TreeToDumbo(Interpreter):
 
     def variable_set_for(self, tree):
         name = self.visit_children(tree)[0].value
-        name = name + "for"
-        if name in self.variables.keys():
-            raise ValueError("Please use a different variable name")
+        name = name + str(self.counter)
+        self.counter += 1
         return name
 
     def variable_get_str(self, tree):
@@ -206,7 +206,7 @@ class TreeToDumbo(Interpreter):
 
 
 def interpret(data, template):
-    grammar = open("src/dumbo.lark", "r").read()
+    grammar = open("dumbo.lark", "r").read()
     tree_data = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(data)
     tree_template = Lark(grammar, parser='lalr', propagate_positions=True, debug=True).parse(template)
     return TreeToDumbo().construct(tree_template, TreeToDumbo().get_vars(tree_data))
